@@ -40,6 +40,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 .hasAnyAuthority(
                         AUTHORITY_USER, AUTHORITY_ADMIN, AUTHORITY_MODERATOR
                 )
+                .antMatchers(
+                        "/discuss/top",
+                        "/discuss/wonderful"
+                )
+                .hasAnyAuthority(AUTHORITY_MODERATOR)
+                .antMatchers(
+                        "/discuss/delete"
+                )
+                .hasAnyAuthority(AUTHORITY_ADMIN)
                 .anyRequest().permitAll()
                 .and().csrf().disable();
 
@@ -52,7 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         // async request
                         response.setContentType("application/plain;charset=utf-8");
                         PrintWriter writer = response.getWriter();
-                        writer.write(CommunityUtil.getJsonString(403, "you haven't logged in"));
+                        writer.write(CommunityUtil.getJsonString(403, "You haven't logged in!"));
                     } else {
                         response.sendRedirect(request.getContextPath() + "/login");
                     }
@@ -63,7 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                         // async request
                         response.setContentType("application/plain;charset=utf-8");
                         PrintWriter writer = response.getWriter();
-                        writer.write(CommunityUtil.getJsonString(403, "you are not authorized to access here"));
+                        writer.write(CommunityUtil.getJsonString(403, "You have no access for this:D"));
                     } else {
                         response.sendRedirect(request.getContextPath() + "/denied");
                     }
