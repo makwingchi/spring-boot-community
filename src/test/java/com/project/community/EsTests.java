@@ -53,15 +53,15 @@ class EsTests {
 
     @Test
     void testSaveAll() {
-        repo.saveAll(mapper.selectDiscussPosts(101, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(102, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(103, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(111, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(112, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(131, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(132, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(133, 0, 100));
-        repo.saveAll(mapper.selectDiscussPosts(134, 0, 100));
+        repo.saveAll(mapper.selectDiscussPosts(101, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(102, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(103, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(111, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(112, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(131, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(132, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(133, 0, 100, 0));
+        repo.saveAll(mapper.selectDiscussPosts(134, 0, 100, 0));
     }
 
     @Test
