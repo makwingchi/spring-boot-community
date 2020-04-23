@@ -1,4 +1,4 @@
-package quartz;
+package com.project.community.quartz;
 
 import com.project.community.entity.DiscussPost;
 import com.project.community.service.DiscussPostService;

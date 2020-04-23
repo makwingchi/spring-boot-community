@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.quartz.JobDetailFactoryBean;
 import org.springframework.scheduling.quartz.SimpleTriggerFactoryBean;
-import quartz.PostScoreRefreshJob;
+import com.project.community.quartz.PostScoreRefreshJob;
 
 /**
  * @author makwingchi
@@ -42,7 +42,7 @@ public class QuartzConfig {
         factoryBean.setJobDetail(postScoreRefreshJobDetail);
         factoryBean.setName("postScoreRefreshTrigger");
         factoryBean.setGroup("communityTriggerGroup");
-        factoryBean.setRepeatInterval(5000);
+        factoryBean.setRepeatInterval(30 * 60 * 1000); // execute every 30 minutes
         factoryBean.setJobDataMap(new JobDataMap());
 
         return factoryBean;

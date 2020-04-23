@@ -1,13 +1,23 @@
 package com.project.community.service;
 
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.project.community.dao.DiscussPostMapper;
 import com.project.community.entity.DiscussPost;
 import com.project.community.util.SensitiveFilter;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author makwingchi
@@ -17,17 +27,82 @@ import java.util.List;
 @Service
 public class DiscussPostService {
 
+    private static final Logger logger = LoggerFactory.getLogger(DiscussPostService.class);
+
     @Autowired
     private DiscussPostMapper discussPostMapper;
 
     @Autowired
     private SensitiveFilter sensitiveFilter;
 
+    @Value("${caffeine.posts.max-size}")
+    private int maxSize;
+
+    @Value("${caffeine.posts.expire-seconds}")
+    private int expireSeconds;
+
+    // cache of post list
+    private LoadingCache<String, List<DiscussPost>> postListCache;
+
+    // cache of total number of posts
+    private LoadingCache<Integer, Integer> postRowsCache;
+
+    @PostConstruct
+    public void init() {
+        // initialize postListCache
+        postListCache = Caffeine.newBuilder()
+        .maximumSize(maxSize)
+        .expireAfterAccess(expireSeconds, TimeUnit.SECONDS)
+        .build(new CacheLoader<String, List<DiscussPost>>() {
+            @Nullable
+            @Override
+            public List<DiscussPost> load(@NonNull String key) throws Exception {
+                if (key == null || key.length() == 0) {
+                    throw new IllegalArgumentException("param invalid");
+                }
+                String[] params = key.split(":");
+                if (params == null || params.length != 2) {
+                    throw new IllegalArgumentException("param invalid");
+                }
+                int offset = Integer.parseInt(params[0]);
+                int limit = Integer.parseInt(params[1]);
+
+                // Redis
+                // .....
+
+                // MySQL
+                return discussPostMapper.selectDiscussPosts(0, offset, limit, 1);
+            }
+        });
+
+        // initialize postRowsCache
+        postRowsCache = Caffeine.newBuilder()
+                .maximumSize(maxSize)
+                .expireAfterWrite(expireSeconds, TimeUnit.SECONDS)
+                .build(new CacheLoader<Integer, Integer>() {
+                    @Nullable
+                    @Override
+                    public Integer load(@NonNull Integer key) throws Exception {
+                        return discussPostMapper.selectDiscussPostRows(key);
+                    }
+                });
+    }
+
+
     public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit, int orderMode){
+        // only if home page + popular hosts when we use caffeine cache
+        if (userId == 0 && orderMode == 1) {
+            return postListCache.get(offset + ":" + limit);
+        }
+        logger.debug("load post list from DB...");
         return discussPostMapper.selectDiscussPosts(userId, offset, limit, orderMode);
     }
 
     public int findDiscussPostsRows(int userId) {
+        if (userId == 0) {
+            return postRowsCache.get(userId);
+        }
+        logger.debug("load post rows from DB...");
         return discussPostMapper.selectDiscussPostRows(userId);
     }
 
