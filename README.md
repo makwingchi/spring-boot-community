@@ -30,7 +30,9 @@ Please make sure you have `Java 12`, `git`, `Redis`, `Kafka`, `Elasticsearch`, `
 <b>Run the SQL scripts in the sql folder using MySQL in the following order:</b> init_schema -> init_data -> tables_mysql_innodb<br><br>
 <b>Start the application</b> <br>
 `>cd community` <br>
-`>mvn spring-boot:run`<br>
+`>mvn spring-boot:run`<br><br>
+<b>Open a browser and type in:</b><br>
+```http://localhost/community```
 
 ## Tech Stack
 - `Spring Boot`
